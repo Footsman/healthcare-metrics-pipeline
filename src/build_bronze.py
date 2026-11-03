@@ -1,7 +1,8 @@
 """Phase 1, bronze: land the three source CSVs as Parquet, unchanged."""
 from pathlib import Path
 from datetime import datetime, timezone
-import duckdb, pandas as pd
+import pandas as pd
+import pyarrow.parquet as pq
 
 DATA = Path(r"C:\Users\Footsman\Documents\DATA ENGINEER ACADEMY\Healthcare_project\nursing home data")
 LAKE = Path(__file__).resolve().parents[1] / "lake"
@@ -27,8 +28,8 @@ def main():
         out.mkdir(parents=True, exist_ok=True)
         dest = out / f"{src.stem}.parquet"
 
-        duckdb.sql(f"COPY df TO '{dest.as_posix()}' (FORMAT PARQUET)")
-        back = duckdb.sql(f"SELECT COUNT(*) FROM '{dest.as_posix()}'").fetchall()[0][0]
+        df.to_parquet(dest, index=False)
+        back = pq.ParquetFile(dest).metadata.num_rows
 
         flag = "OK " if back == rows_in else "FAIL"
         print(f"{flag} {table:<16} {rows_in:>9,} rows in, {back:>9,} out  ->  {dest.name}")
