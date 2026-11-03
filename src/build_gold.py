@@ -39,6 +39,8 @@ def build_facility_quarter() -> pd.DataFrame:
     m["days_reported"]   = g.size()
     m["days_with_hours"] = g.hrs_direct.apply(lambda s: int((s > 0).sum()))
     m["resident_days"]   = gr.mdscensus.sum()
+    m["direct_hours"]     = gr.hrs_direct.sum().round(2)
+    m["direct_hours_ctr"] = gr.hrs_direct_ctr.sum().round(2)
     m["avg_census"]      = g.mdscensus.mean().round(1)
 
     # metric 1 - hours per resident day, direct care
