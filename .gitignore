@@ -20,3 +20,11 @@ venv/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# build artifacts
+build/
+*.zip
+out.json
+
+# IAM policy documents are safe to commit - no secrets in them
+!infra/*.json

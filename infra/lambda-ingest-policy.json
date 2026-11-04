@@ -1,0 +1,23 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "WriteRawOnly",
+      "Effect": "Allow",
+      "Action": ["s3:PutObject", "s3:AbortMultipartUpload"],
+      "Resource": "arn:aws:s3:::nh-staffing-lake-nherrera/lake/raw/*"
+    },
+    {
+      "Sid": "ReadDriveKey",
+      "Effect": "Allow",
+      "Action": ["secretsmanager:GetSecretValue"],
+      "Resource": "arn:aws:secretsmanager:us-east-1:069318857278:secret:pbj/drive-service-account-*"
+    },
+    {
+      "Sid": "Watermark",
+      "Effect": "Allow",
+      "Action": ["dynamodb:GetItem", "dynamodb:PutItem"],
+      "Resource": "arn:aws:dynamodb:us-east-1:069318857278:table/pbj_ingest_watermark"
+    }
+  ]
+}
