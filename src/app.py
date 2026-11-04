@@ -4,25 +4,31 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
+import io
+import os 
+import boto3
 
-LAKE = Path(__file__).resolve().parents[1] / "lake"
-QTR  = "2024Q2"
+BUCKET = os.environ.get("BUCKET", "nh-staffing-lake-nherrera")
+QTR    = os.environ.get("QTR", "2024Q2")
 
 INK, MUTED, ACCENT, GRID = "#1a1a1a", "#6b7280", "#2f6fb0", "#e5e7eb"
 
 st.set_page_config(page_title="Nursing Home Staffing", layout="wide")
 
 
-@st.cache_data
+@st.cache_data(ttl=3600)
+def _gold(table: str) -> pd.DataFrame:
+    key = f"lake/gold/{table}/cy_qtr={QTR}/{table}.parquet"
+    obj = boto3.client("s3").get_object(Bucket=BUCKET, Key=key)
+    return pd.read_parquet(io.BytesIO(obj["Body"].read()))
+
+
 def load_quarter() -> pd.DataFrame:
-    return pd.read_parquet(LAKE / "gold" / "metrics_facility_quarter" / f"cy_qtr={QTR}"
-                           / "metrics_facility_quarter.parquet")
+    return _gold("metrics_facility_quarter")
 
 
-@st.cache_data
 def load_month() -> pd.DataFrame:
-    return pd.read_parquet(LAKE / "gold" / "metrics_facility_month" / f"cy_qtr={QTR}"
-                           / "metrics_facility_month.parquet")
+    return _gold("metrics_facility_month")
 
 
 def style(fig, height=420):
