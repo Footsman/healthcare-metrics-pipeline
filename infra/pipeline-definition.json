@@ -1,0 +1,58 @@
+{
+  "Comment": "PBJ nursing home staffing pipeline: ingest, then medallion transforms",
+  "StartAt": "Ingest",
+  "States": {
+    "Ingest": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-east-1:069318857278:function:pbj-ingest",
+        "Payload": {}
+      },
+      "Retry": [{
+        "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException", "Lambda.TooManyRequestsException"],
+        "IntervalSeconds": 5, "MaxAttempts": 3, "BackoffRate": 2
+      }],
+      "ResultPath": "$.ingest",
+      "Next": "AnythingNew?"
+    },
+    "AnythingNew?": {
+      "Type": "Choice",
+      "Choices": [{
+        "Variable": "$.ingest.Payload.pulled[0]",
+        "IsPresent": true,
+        "Next": "Bronze"
+      }],
+      "Default": "NothingToDo"
+    },
+    "NothingToDo": { "Type": "Succeed" },
+    "Bronze": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": { "JobName": "pbj-bronze" },
+      "Retry": [{ "ErrorEquals": ["States.TaskFailed"],
+                  "IntervalSeconds": 30, "MaxAttempts": 2, "BackoffRate": 2 }],
+      "ResultPath": null,
+      "Next": "Silver"
+    },
+    "Silver": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": { "JobName": "pbj-silver" },
+      "Retry": [{ "ErrorEquals": ["States.TaskFailed"],
+                  "IntervalSeconds": 30, "MaxAttempts": 2, "BackoffRate": 2 }],
+      "ResultPath": null,
+      "Next": "Gold"
+    },
+    "Gold": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": { "JobName": "pbj-gold" },
+      "Retry": [{ "ErrorEquals": ["States.TaskFailed"],
+                  "IntervalSeconds": 30, "MaxAttempts": 2, "BackoffRate": 2 }],
+      "ResultPath": null,
+      "End": true
+    }
+  }
+}
