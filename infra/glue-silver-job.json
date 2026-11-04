@@ -1,0 +1,16 @@
+{
+  "Name": "pbj-silver",
+  "Role": "pbj-glue-role",
+  "Command": {
+    "Name": "pythonshell",
+    "PythonVersion": "3.9",
+    "ScriptLocation": "s3://nh-staffing-lake-nherrera/scripts/glue_silver.py"
+  },
+  "DefaultArguments": {
+    "--BUCKET": "nh-staffing-lake-nherrera",
+    "--QTR": "2024Q2",
+    "--additional-python-modules": "pandas==2.2.3,pyarrow==20.0.0"
+  },
+  "MaxCapacity": 1,
+  "Timeout": 60
+}

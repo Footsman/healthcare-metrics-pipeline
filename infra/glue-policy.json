@@ -1,0 +1,29 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ListLake",
+      "Effect": "Allow",
+      "Action": ["s3:ListBucket"],
+      "Resource": "arn:aws:s3:::nh-staffing-lake-nherrera"
+    },
+    {
+      "Sid": "ReadWriteLake",
+      "Effect": "Allow",
+      "Action": ["s3:GetObject", "s3:PutObject"],
+      "Resource": "arn:aws:s3:::nh-staffing-lake-nherrera/lake/*"
+    },
+    {
+      "Sid": "ReadScripts",
+      "Effect": "Allow",
+      "Action": ["s3:GetObject"],
+      "Resource": "arn:aws:s3:::nh-staffing-lake-nherrera/scripts/*"
+    },
+    {
+      "Sid": "ReadWatermark",
+      "Effect": "Allow",
+      "Action": ["dynamodb:Scan"],
+      "Resource": "arn:aws:dynamodb:us-east-1:069318857278:table/pbj_ingest_watermark"
+    }
+  ]
+}
